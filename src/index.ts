@@ -27,7 +27,7 @@ async function benchmark(packageManager: string, category: string) {
         `${packageManager} update` :
         `${packageManager} uninstall next`;
 
-  await spawnSync(command, { shell: true, cwd: composerPath });
+  spawnSync(command, { shell: true, cwd: composerPath });
 
   const endTime = Date.now();
   const time = endTime - startTime;
