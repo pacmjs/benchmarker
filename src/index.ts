@@ -32,6 +32,10 @@ async function benchmark(packageManager: string, category: string) {
 }
 
 async function runBenchmarks() {
+  if (!fs.existsSync(composerDir)) {
+    fs.mkdirSync(composerDir);
+  }
+
   spawnSync('npm init -y', { shell: true, cwd: composerDir });
 
   for (const packageManager of packageManagers) {
