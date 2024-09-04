@@ -65,8 +65,7 @@ async function runBenchmarks() {
   ctx.fillStyle = 'white';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Add logo and explanatory text
-  const logo = await loadImage('path/to/logo.png');
+  const logo = await loadImage('assets/logo.png');
   ctx.drawImage(logo, 20, 20, 100, 100);
   ctx.font = '24px Arial';
   ctx.fillStyle = 'black';
