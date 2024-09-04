@@ -10,16 +10,24 @@ interface BenchmarkResult {
 }
 
 const packageManagers = ['npm', 'pnpm', 'yarn'];
-const categories = ['install', 'install-dev', 'update', 'uninstall'];
+const categories = ['install', 'install --save-dev', 'update', 'uninstall'];
 
 const benchmarkResults: BenchmarkResult[] = [];
+let composerPath: string;
 
 async function benchmark(packageManager: string, category: string) {
   console.log(`Starting benchmark for ${packageManager} ${category}`);
   const startTime = Date.now();
 
-  const command = `${packageManager} ${category}`;
-  const result = spawnSync(command, { shell: true });
+  const command = category === 'install' ?
+    `${packageManager} install next` :
+    category === 'install --save-dev' ?
+      `${packageManager} install --save-dev next` :
+      category === 'update' ?
+        `${packageManager} update` :
+        `${packageManager} uninstall next`;
+
+  await spawnSync(command, { shell: true, cwd: composerPath });
 
   const endTime = Date.now();
   const time = endTime - startTime;
@@ -29,6 +37,13 @@ async function benchmark(packageManager: string, category: string) {
 }
 
 async function runBenchmarks() {
+  const composerDir = '.composer';
+  if (!fs.existsSync(composerDir)) {
+    fs.mkdirSync(composerDir, { recursive: true });
+  }
+
+  composerPath = path.join(composerDir);
+
   for (const packageManager of packageManagers) {
     for (const category of categories) {
       await benchmark(packageManager, category);
@@ -76,13 +91,16 @@ async function runBenchmarks() {
 
   const buffer = canvas.toBuffer('image/png');
 
-  const currentDate = new Date().toISOString().split('T')[0];
+  const currentDate = new Date().toISOString().replace(/:/g, '-');
   const resultsDir = path.join('.results', currentDate);
-  if (!fs.existsSync(resultsDir)) fs.mkdirSync(resultsDir, { recursive: true });
+  fs.mkdirSync(resultsDir, { recursive: true });
 
   const filePath = path.join(resultsDir, 'benchmark_results.png');
   fs.writeFileSync(filePath, buffer);
   console.log(`Benchmark results saved to ${filePath}`);
+
+  fs.rmdirSync(composerDir, { recursive: true });
+  console.log(`Removed directory ${composerDir}`);
 }
 
 runBenchmarks().catch(error => console.error(error));
