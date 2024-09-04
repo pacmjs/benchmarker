@@ -35,22 +35,22 @@ async function runBenchmarks() {
     }
   }
 
-  const canvas = createCanvas(800, 600);
+  const canvas = createCanvas(1200, 800);
   const ctx = canvas.getContext('2d');
 
-  const barWidth = 50;
+  const barHeight = 50;
   const barSpacing = 20;
-  const chartHeight = 400;
-  const chartWidth = canvas.width - 2 * barSpacing;
+  const chartHeight = canvas.height - 2 * barSpacing;
+  const chartWidth = 1000;
   const xOffset = barSpacing;
-  const yOffset = canvas.height - chartHeight - barSpacing;
+  const yOffset = barSpacing;
 
   const maxTime = Math.max(...benchmarkResults.map(result => result.time));
 
   ctx.fillStyle = 'white';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.font = '12px Arial';
+  ctx.font = '16px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
 
@@ -62,15 +62,16 @@ async function runBenchmarks() {
 
   for (let i = 0; i < benchmarkResults.length; i++) {
     const result = benchmarkResults[i];
-    const x = xOffset + (i % 3) * (barWidth + barSpacing) + Math.floor(i / 3) * (3 * (barWidth + barSpacing) + barSpacing);
-    const barHeight = (result.time / maxTime) * chartHeight;
+    const y = yOffset + (i % 3) * (barHeight + barSpacing) + Math.floor(i / 3) * (3 * (barHeight + barSpacing) + barSpacing);
+    const barWidth = (result.time / maxTime) * chartWidth;
 
     ctx.fillStyle = colors[result.packageManager];
-    ctx.fillRect(x, yOffset + chartHeight - barHeight, barWidth, barHeight);
+    ctx.fillRect(xOffset, y, barWidth, barHeight);
 
     ctx.fillStyle = 'black';
-    ctx.fillText(result.packageManager, x + barWidth / 2, yOffset + chartHeight + barSpacing);
-    ctx.fillText(result.category, x + barWidth / 2, yOffset + chartHeight + barSpacing + 12);
+    ctx.fillText(result.packageManager, xOffset + barWidth + barSpacing, y);
+    ctx.fillText(result.category, xOffset + barWidth + barSpacing, y + 16);
+    ctx.fillText(`${result.time}ms`, xOffset + barWidth + barSpacing, y + 32);
   }
 
   const buffer = canvas.toBuffer('image/png');
