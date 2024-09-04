@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { createCanvas } from 'canvas';
+import { createCanvas, loadImage } from 'canvas';
 import * as path from 'node:path';
 
 interface BenchmarkResult {
@@ -50,7 +50,7 @@ async function runBenchmarks() {
     }
   }
 
-  const canvas = createCanvas(1200, 800);
+  const canvas = createCanvas(1600, 1200);
   const ctx = canvas.getContext('2d');
 
   const barHeight = 50;
@@ -65,8 +65,15 @@ async function runBenchmarks() {
   ctx.fillStyle = 'white';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  // Add logo and explanatory text
+  const logo = await loadImage('path/to/logo.png');
+  ctx.drawImage(logo, 20, 20, 100, 100);
+  ctx.font = '24px Arial';
+  ctx.fillStyle = 'black';
+  ctx.fillText('Benchmark Results (lower = better)', 140, 50);
+
   ctx.font = '16px Arial';
-  ctx.textAlign = 'center';
+  ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
 
   const colors: { [key: string]: string } = {
@@ -75,13 +82,28 @@ async function runBenchmarks() {
     yarn: 'rgba(0, 0, 255, 0.8)'
   };
 
+  // Draw full height line/bar from bottom to top
+  ctx.strokeStyle = 'black';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(xOffset, yOffset);
+  ctx.lineTo(xOffset, chartHeight + yOffset);
+  ctx.stroke();
+
   for (let i = 0; i < benchmarkResults.length; i++) {
     const result = benchmarkResults[i];
     const y = yOffset + (i % 3) * (barHeight + barSpacing) + Math.floor(i / 3) * (3 * (barHeight + barSpacing) + barSpacing);
     const barWidth = (result.time / maxTime) * chartWidth;
 
     ctx.fillStyle = colors[result.packageManager];
-    ctx.fillRect(xOffset, y, barWidth, barHeight);
+    ctx.beginPath();
+    ctx.moveTo(xOffset, y);
+    ctx.lineTo(xOffset + barWidth, y);
+    ctx.arcTo(xOffset + barWidth + barSpacing, y, xOffset + barWidth + barSpacing, y + barHeight, 10);
+    ctx.lineTo(xOffset + barWidth, y + barHeight);
+    ctx.arcTo(xOffset, y + barHeight, xOffset, y, 10);
+    ctx.closePath();
+    ctx.fill();
 
     ctx.fillStyle = 'black';
     ctx.fillText(result.packageManager, xOffset + barWidth + barSpacing, y);
