@@ -1,19 +1,19 @@
 {
-    "name": "benchmarker",
-    "version": "1.0.0",
-    "description": "",
-    "main": "dist/index.js",
-    "scripts": {
-      "build": "tsc",
-      "benchm": "node dist/index.js"
-    },
-    "license": "Apache-2.0",
-    "dependencies": {
-      "canvas": "^2.11.2"
-    },
-    "devDependencies": {
-      "@types/node": "^22.5.3",
-      "ts-node": "^10.9.2",
-      "typescript": "^5.5.4"
-    }
+  "name": "benchmarker",
+  "version": "1.0.0",
+  "description": "Benchmarker - The Benchmarking software by the PACM package manager",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "benchm": "node dist/index.js"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "canvas": "^2.11.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
   }
+}

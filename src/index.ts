@@ -10,24 +10,19 @@ interface BenchmarkResult {
 }
 
 const packageManagers = ['npm', 'pnpm', 'yarn'];
-const categories = ['install', 'install --save-dev', 'update', 'uninstall'];
+const categories = ['install next', 'install --save-dev next', 'update', 'uninstall next'];
+const yarnCategories = ['install next', 'install --dev next', 'upgrade', 'remove next'];
+const composerDir = path.join(process.cwd(), 'composer');
 
 const benchmarkResults: BenchmarkResult[] = [];
-let composerPath: string;
 
 async function benchmark(packageManager: string, category: string) {
   console.log(`Starting benchmark for ${packageManager} ${category}`);
   const startTime = Date.now();
 
-  const command = category === 'install' ?
-    `${packageManager} install next` :
-    category === 'install --save-dev' ?
-      `${packageManager} install --save-dev next` :
-      category === 'update' ?
-        `${packageManager} update` :
-        `${packageManager} uninstall next`;
+  const command = `${packageManager} ${packageManager === 'yarn' ? yarnCategories[categories.indexOf(category)].replace('next', 'next@latest') : category.replace('next', 'next@latest')}`;
 
-  spawnSync(command, { shell: true, cwd: composerPath });
+  spawnSync(command, { shell: true, cwd: composerDir });
 
   const endTime = Date.now();
   const time = endTime - startTime;
@@ -37,12 +32,7 @@ async function benchmark(packageManager: string, category: string) {
 }
 
 async function runBenchmarks() {
-  const composerDir = '.composer';
-  if (!fs.existsSync(composerDir)) {
-    fs.mkdirSync(composerDir, { recursive: true });
-  }
-
-  composerPath = path.join(composerDir);
+  spawnSync('npm init -y', { shell: true, cwd: composerDir });
 
   for (const packageManager of packageManagers) {
     for (const category of categories) {
@@ -81,7 +71,6 @@ async function runBenchmarks() {
     yarn: 'rgba(0, 0, 255, 0.8)'
   };
 
-  // Draw full height line/bar from bottom to top
   ctx.strokeStyle = 'black';
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -121,7 +110,7 @@ async function runBenchmarks() {
   console.log(`Benchmark results saved to ${filePath}`);
 
   fs.rmdirSync(composerDir, { recursive: true });
-  console.log(`Removed directory ${composerDir}`);
+  fs.mkdirSync(composerDir);
 }
 
 runBenchmarks().catch(error => console.error(error));
