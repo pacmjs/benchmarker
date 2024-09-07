@@ -22,7 +22,7 @@ const containerDir = path.join(process.cwd(), "container");
 const benchmarkResults: BenchmarkResult[] = [];
 
 async function benchmark(packageManager: string, category: string) {
-    logger("ok", `Starting benchmark for ${packageManager} ${category}`);
+    logger("ok", `Starting benchmark for ${packageManager} ${packageManager === "yarn" ? yarnCategories[categories.indexOf(category)] : category}`);
 
     const isUninstallCommand =
         category.includes("uninstall") || category.includes("remove");
@@ -37,7 +37,9 @@ async function benchmark(packageManager: string, category: string) {
 
     const startTime = Date.now();
 
-    const command = `${packageManager} ${packageManager === "yarn" ? yarnCategories[categories.indexOf(category)].replace("next", "next@latest") : category.replace("next", "next@latest")}`;
+    const command = packageManager === "yarn"
+        ? `yarn ${yarnCategories[categories.indexOf(category)].replace("next", "next@latest")}`
+        : `${packageManager} ${category.replace("next", "next@latest")}`;
 
     spawnSync(command, { shell: true, cwd: containerDir });
 
@@ -46,7 +48,7 @@ async function benchmark(packageManager: string, category: string) {
 
     logger(
         "ok",
-        `Completed benchmark for ${packageManager} ${category} in ${time}ms`,
+        `Completed benchmark for ${packageManager} ${packageManager === "yarn" ? yarnCategories[categories.indexOf(category)] : category} in ${time} ms`,
     );
     benchmarkResults.push({ packageManager, category, time });
 }
@@ -54,7 +56,7 @@ async function benchmark(packageManager: string, category: string) {
 async function runBenchmarks() {
     for (const packageManager of packageManagers) {
         for (const category of categories) {
-            await benchmark(packageManager, category);
+           await benchmark(packageManager, category);
         }
     }
 
@@ -91,6 +93,8 @@ async function runBenchmarks() {
     ctx.fillStyle = "white";
     drawRoundedRect(ctx, 0, 0, canvas.width, canvas.height, 50);
 
+    ctx.clip();
+
     try {
         const background = await loadImage("assets/board.png");
         ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
@@ -100,7 +104,7 @@ async function runBenchmarks() {
     }
 
     const now = new Date();
-    const date = now.toLocaleDateString();
+    const date = now.toLocaleDateString("de-DE");
     ctx.fillStyle = "black";
     ctx.font = "bold 48px sans-serif";
     ctx.fillText(`${date}`, canvas.width - 260, 70);
