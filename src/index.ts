@@ -2,6 +2,7 @@ import * as fs from "node:fs";
 import { spawnSync } from "node:child_process";
 import { createCanvas, loadImage, CanvasRenderingContext2D } from "canvas";
 import * as path from "node:path";
+import logger from "../lib/logger.js";
 
 interface BenchmarkResult {
     packageManager: string;
@@ -21,13 +22,13 @@ const containerDir = path.join(process.cwd(), "container");
 const benchmarkResults: BenchmarkResult[] = [];
 
 async function benchmark(packageManager: string, category: string) {
-    console.log(`Starting benchmark for ${packageManager} ${category}`);
+    logger("ok", `Starting benchmark for ${packageManager} ${category}`);
 
     const isUninstallCommand =
         category.includes("uninstall") || category.includes("remove");
 
     if (!isUninstallCommand && fs.existsSync(containerDir)) {
-        fs.rmdirSync(containerDir, { recursive: true });
+        fs.rmSync(containerDir, { recursive: true });
     }
     if (!isUninstallCommand) {
         fs.mkdirSync(containerDir);
@@ -43,7 +44,8 @@ async function benchmark(packageManager: string, category: string) {
     const endTime = Date.now();
     const time = endTime - startTime;
 
-    console.log(
+    logger(
+        "ok",
         `Completed benchmark for ${packageManager} ${category} in ${time}ms`,
     );
     benchmarkResults.push({ packageManager, category, time });
@@ -93,7 +95,7 @@ async function runBenchmarks() {
         const background = await loadImage("assets/board.png");
         ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
     } catch (error) {
-        console.error("Error loading background image:", error);
+        logger("fail", "Failed loading background image");
         return;
     }
 
@@ -212,7 +214,25 @@ async function runBenchmarks() {
 
     const filePath = path.join(resultsDir, "benchmark_results.png");
     fs.writeFileSync(filePath, buffer);
-    console.log(`Benchmark results saved to ${filePath}`);
+    logger("ok", `Benchmark results saved to ${filePath}`);
+
+    const readmePath = path.join(process.cwd(), "README.md");
+    const readmeContent = fs.readFileSync(readmePath, "utf-8");
+    const newImagePath = `results/${currentDate}/benchmark_results.png`;
+    const imageMarkdown = `![Benchmark Results](${newImagePath})`;
+
+    let updatedReadmeContent;
+    if (readmeContent.includes("![Benchmark Results]")) {
+        updatedReadmeContent = readmeContent.replace(
+            /!\[Benchmark Results\]\(.*\)/,
+            imageMarkdown,
+        );
+    } else {
+        updatedReadmeContent = `${readmeContent.trim()}\n\n${imageMarkdown}`;
+    }
+
+    fs.writeFileSync(readmePath, updatedReadmeContent, "utf-8");
+    logger("ok", "Updated README.md with benchmark results");
 }
 
 runBenchmarks().catch((error) => console.error(error));
@@ -223,7 +243,7 @@ function clearResultsDir(resultsDir: string) {
         for (const file of files) {
             const filePath = path.join(resultsDir, file);
             if (fs.statSync(filePath).isDirectory()) {
-                fs.rmdirSync(filePath, { recursive: true });
+                fs.rmSync(filePath, { recursive: true });
             }
         }
     }

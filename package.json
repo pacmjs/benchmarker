@@ -2,11 +2,10 @@
     "name": "benchmarker",
     "version": "1.0.0",
     "description": "Benchmarker - The Benchmarking software by the PACM package manager",
-    "main": "dist/index.js",
+    "main": "dist/src/index.js",
     "scripts": {
-        "start": "node dist/index.js",
+        "start": "tsc && node dist/src/index.js",
         "build": "tsc",
-        "test": "nodemon --exec ts-node index.ts",
         "format": "prettier --write .",
         "format:check": "prettier --check ."
     },

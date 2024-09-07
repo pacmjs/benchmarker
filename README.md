@@ -1,1 +1,3 @@
-<img src="results/2024-09-07T22-32-24.870Z/benchmark_results.png" height="100%" width="100%" />
+
+
+![Benchmark Results](results/2024-09-07T22-55-51.070Z/benchmark_results.png)
