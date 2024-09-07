@@ -31,9 +31,11 @@ jobs:
               run: pnpm start
 
             - name: Commit and push changes
+              env:
+                GH_PAT: ${{ secrets.GH_PAT }}
               run: |
                 git config --local user.email "actions@github.com"
                 git config --local user.name "GitHub Actions"
                 git add .
                 git commit -m "Auto commit by GitHub Actions"
-                git push
+                git push https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}.git HEAD:main
