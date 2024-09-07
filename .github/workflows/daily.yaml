@@ -1,0 +1,38 @@
+name: Daily Workflow
+
+on:
+    schedule:
+        - cron: '0 0 * * *'
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v2
+              with:
+                node-version: '18'
+
+            - name: Install latest npm, pnpm, and yarn
+              run: |
+                npm install -g npm@latest
+                npm install -g pnpm@latest
+                npm install -g yarn@latest
+
+            - name: Install dependencies with pnpm
+              run: pnpm install
+
+            - name: Run pnpm start
+              run: pnpm start
+
+            - name: Commit and push changes
+              run: |
+                git config --local user.email "actions@github.com"
+                git config --local user.name "GitHub Actions"
+                git add .
+                git commit -m "Auto commit by GitHub Actions"
+                git push
