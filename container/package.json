@@ -10,6 +10,6 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "next": "^14.2.11"
+    "next": "^14.2.12"
   }
 }
